@@ -1,13 +1,15 @@
 <?php 
 
 session_start();
-
+//php 5
 include( 'includes/user.class.php' ); 
+//php 7
+//include( 'includes/user.class.7.php' );
 
 $user = new User();
 
 if( isset( $_GET['read'] ) ){
-  $message_id = mysql_real_escape_string( $_GET['read'] );
+  $message_id = real_escape_string( $_GET['read'] );
 }
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

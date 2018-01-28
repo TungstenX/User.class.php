@@ -2,12 +2,15 @@
 
 session_start();
 
+//php 5
 include( 'includes/user.class.php' );
+//php 7
+//include( 'includes/user.class.7.php' );
 
 $user = new User();
 
 if( isset( $_GET['read'] ) ){
-  $message_id = mysql_real_escape_string( $_GET['read'] );
+  $message_id = real_escape_string( $_GET['read'] );
 }
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -46,7 +49,7 @@ if( $user->isLoggedIn() ){
   }else{
     $to = $user->userInfo( $_POST['to'] ); 
     $from = $user->userInfo( $_SESSION['userName'] );
-    if( $user->exists( mysql_real_escape_string( $_POST['to'] ) ) && $user->sendMessage( $to['id'] , $from['id'] , mysql_real_escape_string( $_POST['subject'] ) , $_POST['message'] ) ){
+    if( $user->exists( real_escape_string( $_POST['to'] ) ) && $user->sendMessage( $to['id'] , $from['id'] , real_escape_string( $_POST['subject'] ) , $_POST['message'] ) ){
 ?>
     <div class="Sendtext">Sent! Click <b><a href="messages.php">here</a></b> to return</div>
 <?php

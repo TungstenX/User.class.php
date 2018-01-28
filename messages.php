@@ -1,13 +1,15 @@
 <?php
 
 session_start();
-
+//php 5
 include( 'includes/user.class.php' );
+//php 7
+//include( 'includes/user.class.7.php' );
 
 $user = new User();
 
 if( isset( $_GET['read'] ) ){
-  $message_id = mysql_real_escape_string( $_GET['read'] );
+  $message_id = real_escape_string( $_GET['read'] );
 }
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -31,7 +33,7 @@ if( $user->isLoggedIn() ){
   <h1>Your Messages</h1>
 <?php
     if( isset( $_GET['delete'] ) ){
-      $user->deleteMessage( mysql_real_escape_string( $_GET['delete'] ) );
+      $user->deleteMessage( real_escape_string( $_GET['delete'] ) );
 ?>
   <div id="content">
     <p class="description" style="margin-bottom: 20px">
@@ -42,7 +44,7 @@ if( $user->isLoggedIn() ){
       die();
     }
     if( isset( $_GET['unread'] ) ){
-      $user->setMessageUnread( mysql_real_escape_string( $_GET['unread'] ) );
+      $user->setMessageUnread( real_escape_string( $_GET['unread'] ) );
 ?>
   <div id="content">
     <p class="description" style="margin-bottom: 20px">
@@ -58,7 +60,7 @@ if( $user->isLoggedIn() ){
 <?php
     if( $messages = $user->displayMessages( 'list' , $login['id'] ) ){
       $count = 1;
-      while( $row = mysql_fetch_array( $messages ) ){
+      while( $row = fetch_array( $messages ) ){
         $from = $user->userInfoId( $row['message_from'] );
 ?>
   <a href="messages.php?read=<?php echo $row['message_id'];?>">
@@ -85,7 +87,7 @@ if( $user->isLoggedIn() ){
     }
   }else{
     if( $message = $user->displayMessages( 'read' , $login['id'] , $message_id ) ) {
-      $message = mysql_fetch_array( $message );
+      $message = fetch_array( $message );
       if( $message['message_to']==$login['id'] ){
         $user->setMessageRead( $message_id );
         $from = $user->userInfoId( $message['message_from'] );
