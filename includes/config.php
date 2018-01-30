@@ -12,9 +12,9 @@
 
 //Database creditentials (EDIT THESE)
 $dbHost     = 'localhost';
-$dbDatabase = 'mc';
-$dbUsername = 'mcuser';
-$dbPassword = 'SGT95eGDsQD6hC9z';
+$dbDatabase = 'user_class';
+$dbUsername = 'user_class_user';
+$dbPassword = 'user_class_password';
 
 $loginAttemptCount = 3;
 $loginAttemptTime  = strtotime( '-2 minutes' );
