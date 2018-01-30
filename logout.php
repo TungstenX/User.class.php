@@ -1,8 +1,7 @@
 <?php 
 
 session_start();
-
-include( 'includes/user.class.php' ); 
+include( 'includes/version.php' );
 
 $user = new User();
 

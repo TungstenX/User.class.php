@@ -1,8 +1,7 @@
 <?php 
 
 session_start();
-
-include( 'includes/user.class.php' );
+include( 'includes/version.php' );
 
 $user = new User();
 
@@ -18,12 +17,14 @@ if( isset( $_SESSION['try'] ) ){
   }
 }
 
-if( isset( $_POST['username'] ) ){
-	if( $user->verify( $_POST['username'] , $_POST['password'] ) ){
-		$user->setLoggedIn($_POST['username'], $_POST['password']); 
+$username = getPostStrParam('username');
+$password = getPostStrParam('password');
+if(!is_null($username)){
+  if( $user->verify($username, $password)){
+    $user->setLoggedIn($username, $password); 
     unset( $_SESSION['try'] );
-		$user->redirectTo('members');
-	} else {
+    $user->redirectTo('members');
+  } else {
     $message = 'Error. Incorrect username or password.';
     $_SESSION['try'][] = time();
   }

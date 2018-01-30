@@ -1,23 +1,23 @@
 <?php
 
 session_start();
-
-include( 'includes/user.class.php' );
+include( 'includes/version.php' );
 
 $user = new User();
 
 if( $user->isLoggedIn() ){
   $user->redirectTo( 'members' );
 }
-
-if( isset( $_POST['username'] ) ){
+$username = getPostStrParam('username');
+$password = getPostStrParam('password');
+if(!is_null($username)){
   // If register is successful.
-	if( $user->register( $_POST['username'] , $_POST['password'] ) ){
-		$message = 'Registration successful. Please login <a href="login.php">here</a>';
-		$registered = TRUE;
-	} else {
-		$message = 'Sorry that username is already taken. Please try again.';
-	}
+  if($user->register($username, $password)){
+    $message = 'Registration successful. Please login <a href="login.php">here</a>';
+    $registered = TRUE;
+  } else {
+    $message = 'Sorry that username is already taken. Please try again.';
+  }
 }
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

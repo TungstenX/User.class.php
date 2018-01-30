@@ -1,4 +1,6 @@
 <?php
+//Include this file for php7
+//TungstenX: Consider using php built in input filter rather than db escape
 
 include( 'config.php' );
 
@@ -33,6 +35,7 @@ class User {
   }
 
   function register( $userName , $userPassword ){
+    global $dbCon;
     if( $this->exists( $userName ) )
       return false;
 
@@ -47,19 +50,20 @@ class User {
             real_escape_string( $salt ) ,
             real_escape_string( $date )
           );
-    if( mysql_query( $q1 ) )
-      return mysql_insert_id();
-    die( mysql_error() ); // Run it. If it doesn't go through stop the script and display the error.
+    if( mysqli_query( $dbCon, $q1 ) )
+      return mysqli_insert_id( $dbCon);
+    die( mysqli_error( $dbCon ) ); // Run it. If it doesn't go through stop the script and display the error.
     return false;
   }
 
   function update( $userName , $oldPassword , $newPassword ){
+    global $dbCon;
     if( !$this->exists( $userName ) )
       return false;
     $q1 = sprintf( "SELECT password, rand, created_at FROM users WHERE username='%s'" ,
             real_escape_string( $userName )
           );
-    $r1 = fetch_array( mysql_query( $q1 ) );
+    $r1 = fetch_array( mysqli_query( $dbCon, $q1 ) );
     $oldHashDB = $this->hash( $r1['password'] , $r1['rand'] , $r1['created_at'] );
     $oldHashIn = $this->hash( $oldPassword , $r1['rand'] , $r1['created_at'] );
     if( $oldHashDB == $oldHashIn ){
@@ -70,7 +74,7 @@ class User {
               real_escape_string( $salt ) ,
               real_escape_string( $userName )
             );
-      if( mysql_query( $q2 ) ){
+      if( mysqli_query( $dbCon, $q2 ) ){
         $this->setLoggedIn( $userName , $newPassword );
         return true;
       }
@@ -78,11 +82,12 @@ class User {
   }
 
   function verify( $userName , $userPassword ){
+    global $dbCon;
     // Grabbing all the user details with this query
     $q1 = sprintf( "SELECT password, rand, created_at FROM users WHERE username='%s'" ,
             real_escape_string( $userName )
           );
-    $r1 = fetch_array( mysql_query( $q1 ) );
+    $r1 = fetch_array( mysqli_query( $dbCon, $q1 ) );
     $ph = $this->hash( $userPassword , $r1['rand'] , $r1['created_at'] );
     // Return whether it is true or false
     return ( $r1['password'] == $this->hash( $userPassword , $r1['rand'] , $r1['created_at'] ) );
@@ -109,21 +114,23 @@ class User {
   }
 
   function userInfo( $userName ){
+    global $dbCon;
     // This function returns all user details to the front end. This is to save storing it all in sessions
     $q1 = sprintf( "SELECT * FROM users WHERE username='%s'" ,
             real_escape_string( $userName )
           );
     // Fetch and Return the array
-    return fetch_array( mysql_query( $q1 ) );
+    return fetch_array( mysqli_query( $dbCon, $q1 ) );
   }
 
   function userInfoId( $UID ){
+    global $dbCon;
     // This function returns all user details to the front end. This is to save storing it all in sessions
     $q1 = sprintf( "SELECT * FROM users WHERE id=%s" ,
             (int) $UID
           );
     // Fetch and Return the array
-    return fetch_array( mysql_query( $q1 ) );
+    return fetch_array( mysqli_query( $dbCon, $q1 ) );
   }
 
   function logOut(){
@@ -137,14 +144,16 @@ class User {
   }
 
   function exists( $userName ){
+    global $dbCon;
     // Checks a user exists (for the register page)
     $q1 = sprintf( "SELECT username FROM users WHERE username = '%s'" ,
             real_escape_string( $userName )
           );
-    return (bool) mysql_num_rows( mysql_query( $q1 ) );
+    return (bool) mysqli_num_rows( mysqli_query( $dbCon, $q1 ) );
   }
 
   function search( $field , $term ){
+    global $dbCon;
     $sql_field = false;
 
     switch( $field ){
@@ -160,23 +169,25 @@ class User {
     $q1 = sprintf( "SELECT * from users WHERE %s LIKE '%%%s%%'" ,
             real_escape_string( $term )
           );
-    $r1 = mysql_query( $q1 );
-    if( !mysql_num_rows( $r1 ) )
+    $r1 = mysqli_query( $dbCon, $q1 );
+    if( !mysqli_num_rows( $r1 ) )
       return false;
     return $r1;
   }
 
   function messageNotification( $UID ){
+    global $dbCon;
     // Select all unread notifications
     $q1 = sprintf( "SELECT * FROM messages WHERE message_to = '%s' AND message_read = '0'" ,
             (int) $UID
           );
-    $r1 = mysql_query( $q1 );
+    $r1 = mysqli_query( $dbCon, $q1 );
     // Return the number
-    return mysql_num_rows( $r1 );
+    return mysqli_num_rows( $r1 );
   }
 
   function displayMessages( $action , $UID , $ID=NULL ){
+    global $dbCon;
     $where = false;
 
     switch( $action ){
@@ -195,18 +206,19 @@ class User {
     $q = sprintf( "SELECT * FROM messages INNER JOIN users ON messages.message_from=users.id WHERE %s" ,
            $where
          );
-    $r = mysql_query( $q );
-    if( !mysql_num_rows( $r ) )
+    $r = mysqli_query( $dbCon, $q );
+    if( !mysqli_num_rows( $r ) )
       return false;
     return $r;
   }
 
   function setMessageStatus( $messageID , $status ){
+    global $dbCon;
     $q = sprintf( "UPDATE messages SET message_read = %s WHERE message_id = %s" ,
             (int) $status ,
             (int) $messageID
          );
-    mysql_query( $q );
+    mysqli_query( $dbCon, $q );
   }
 
   function setMessageUnread( $messageID ){
@@ -217,19 +229,21 @@ class User {
   }
 
   function sendMessage( $to , $from , $subject , $message ){
+    global $dbCon;
     $q = sprintf( "INSERT INTO messages (message_to, message_from, message_subject, message, message_read) VALUES ('%s', '%s', '%s', '%s', 0)" ,
            real_escape_string( $to ) ,
            real_escape_string( $from ) ,
            real_escape_string( $subject ) ,
            real_escape_string( $message ));
-    return mysql_query( $q );
+    return mysqli_query( $dbCon, $q );
   }
 
   function deleteMessage( $messageID ){
+    global $dbCon;
     $q = sprintf( "DELETE FROM messages WHERE message_id = '%s'" ,
            (int) $messageID
          );
-    return mysql_query( $q );
+    return mysqli_query( $dbCon, $q );
   }
 
   function string_shorten( $text , $len ){
