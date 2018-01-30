@@ -246,4 +246,20 @@ class User {
     return $levels[$i];
   }
 
+  function smiley($string) { //This is our smileys!
+    $smileys = array(
+      '0:)' => '<img src="images/angel.png" />', //It looks like this: 'SHORTCODE' => 'HTML'
+      ':S' => '<img src="images/awww.png" />', //So type :S and this'll replace it with <img src="images/awww.png" />
+      ':|' => '<img src="images/disheartened.png" />',
+      'x)' => '<img src="images/ecstatic.png" />',
+      ':D' => '<img src="images/great.png" />',
+      ':P' => '<img src="images/just-like-that.png" />',
+      ':@' => '<img src="images/kill-u.png" />',
+      ':x' => '<img src="images/mouthshut.png" />',
+      ':)' => '<img src="images/nice.png" />',
+      'D:' => '<img src="images/omg.png" />',
+      ':(' => '<img src="images/sad.png" />',
+      ';)' => '<img src="images/wink.png" />',);
+    return(strtr($string, $smileys)); //Return the changed string
+  }
 }
